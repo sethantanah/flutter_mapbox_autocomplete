@@ -49,12 +49,13 @@ class CustomTextField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
+          borderSide: BorderSide.none,
           borderRadius: const BorderRadius.all(
             const Radius.circular(4),
           ),
         ),
         enabledBorder: const OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black54, width: 0.0),
+          borderSide: const BorderSide(color: Colors.white, width: 0.0),
         ),
         filled: true,
         hintStyle: TextStyle(
@@ -68,7 +69,7 @@ class CustomTextField extends StatelessWidget {
           fontSize: 14,
         ),
       ),
-      enabled: enabled,
+      enabled: true,
       obscureText: obscureText,
       readOnly: readOnly,
       keyboardType: inputType,
