@@ -89,8 +89,9 @@ class _MapBoxAutoCompleteWidgetState extends State<MapBoxAutoCompleteWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-         automaticallyImplyLeading: false,
+         automaticallyImplyLeading: true,
          backgroundColor: Colors.greenAccent,
+         elevation: 0,
         title: CustomTextField(
           hintText: widget.hint,
           textController: _searchFieldTextController,
