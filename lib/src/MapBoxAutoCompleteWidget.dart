@@ -48,7 +48,9 @@ class MapBoxAutoCompleteWidget extends StatefulWidget {
       _MapBoxAutoCompleteWidgetState();
 }
 
-class _MapBoxAutoCompleteWidgetState extends State<MapBoxAutoCompleteWidget> {
+class _MapBoxAutoCompleteWidgetState extends State<MapBoxAutoCompleteWidget>
+    with TickerProviderStateMixin {
+  late ScrollController _scrollViewController;
   final _searchFieldTextController = TextEditingController();
   final _searchFieldTextFocus = FocusNode();
 
@@ -86,40 +88,108 @@ class _MapBoxAutoCompleteWidgetState extends State<MapBoxAutoCompleteWidget> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _scrollViewController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollViewController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-         backgroundColor: Colors.white30,
-         elevation: 2,
-        title: CustomTextField(
-          hintText: widget.hint,
-          textController: _searchFieldTextController,
-          onChanged: (input) => _getPlaces(input),
-          focusNode: _searchFieldTextFocus,
-          onFieldSubmitted: (value) => _searchFieldTextFocus.unfocus(),
-          // onChanged: (input) => print(input),
-        ),
-        actions: <Widget>[
-          IconButton(
-            color: Colors.black,
-            icon: Icon(Icons.clear),
-            onPressed: () => _searchFieldTextController.clear(),
-          )
-        ],
-      ),
-      body: ListView.separated(
-        separatorBuilder: (cx, _) => Divider(),
-        padding: EdgeInsets.symmetric(horizontal: 15),
-        itemCount: _placePredictions!.features!.length,
-        itemBuilder: (ctx, i) {
-          MapBoxPlace _singlePlace = _placePredictions!.features![i];
-          return ListTile(
-            title: Text(_singlePlace.text!),
-            subtitle: Text(_singlePlace.placeName!),
-            onTap: () => _selectPlace(_singlePlace),
-          );
-        },
-      ),
-    );
+        extendBody: true,
+        backgroundColor: Colors.white30,
+        body: NestedScrollView(
+            controller: _scrollViewController,
+            headerSliverBuilder: (context, bool boxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                    pinned: true,
+                    floating: true,
+                    forceElevated: boxIsScrolled,
+                    stretch: true,
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+                    automaticallyImplyLeading: false,
+                    leading: IconButton(
+                      color: Colors.black,
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    title: Text('Your Route',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18)),
+                    actions: <Widget>[
+                      IconButton(
+                        color: Colors.black,
+                        icon: Icon(Icons.add),
+                        onPressed: () => _searchFieldTextController.clear(),
+                      )
+                    ],
+                    bottom: PreferredSize(
+                        preferredSize: const Size.fromHeight(48.0),
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 10.0, right:10.0, top:20.0),
+                            child: Container(
+                                decoration:  BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                    border: Border(
+                                        top: BorderSide(
+                                            color: Colors.greenAccent,
+                                            width: 3),
+                                        bottom: BorderSide(
+                                            color: Colors.greenAccent,
+                                            width: 3),
+                                        left: BorderSide(
+                                            color: Colors.greenAccent,
+                                            width: 3),
+                                        right: BorderSide(
+                                            color: Colors.greenAccent,
+                                            width: 3))),
+                                child: CustomTextField(
+                                  enabled: true,
+                                  prefixIcon: Icon(Icons.search,
+                                      color: Colors.black, size: 30),
+                                  suffixIcon: IconButton(
+                                    color: Colors.black,
+                                    icon: Icon(
+                                      Icons.close,
+                                      size: 25,
+                                    ),
+                                    onPressed: () =>
+                                        _searchFieldTextController.clear(),
+                                  ),
+                                  hintText: widget.hint,
+                                  textController: _searchFieldTextController,
+                                  onChanged: (input) => _getPlaces(input),
+                                  focusNode: _searchFieldTextFocus,
+                                  onFieldSubmitted: (value) =>
+                                      _searchFieldTextFocus.unfocus(),
+                                  // onChanged: (input) => print(input),
+                                ))))),
+              ];
+            },
+            body: SingleChildScrollView(
+              child: ListView.separated(
+                separatorBuilder: (cx, _) => Divider(),
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                itemCount: _placePredictions!.features!.length,
+                itemBuilder: (ctx, i) {
+                  MapBoxPlace _singlePlace = _placePredictions!.features![i];
+                  return ListTile(
+                    title: Text(_singlePlace.text!),
+                    subtitle: Text(_singlePlace.placeName!),
+                    onTap: () => _selectPlace(_singlePlace),
+                  );
+                },
+              ),
+            )));
   }
 }
